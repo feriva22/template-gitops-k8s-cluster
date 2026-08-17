@@ -4,6 +4,7 @@ metadata:
   name: telegram-alert
   namespace: flux-system
 spec:
+  summary: "🚨 [sandbox-cluster | sandbox]"
   eventMetadata:
     env: sandbox
     cluster: sandbox-cluster
