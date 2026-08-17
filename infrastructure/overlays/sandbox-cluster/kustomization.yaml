@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
   - ../../base/notification-infra-team
   - ../../base/argocd
-  - non-existent-file.yaml # <--- Will cause Kustomize build failure
+  # - non-existent-file.yaml # <--- Will cause Kustomize build failure
 
 # Strategic merge patch to apply production HA values over the base HelmRelease
 patches:
@@ -12,3 +12,8 @@ patches:
       kind: HelmRelease
       name: argocd
       namespace: argocd
+  - path: alert-eventmetadata-patch.yaml
+    target:
+      kind: Alert
+      name: telegram-alert
+      namespace: flux-system
