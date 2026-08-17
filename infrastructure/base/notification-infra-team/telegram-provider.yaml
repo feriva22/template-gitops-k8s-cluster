@@ -1,0 +1,10 @@
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Provider
+metadata:
+  name: telegram-notifier
+  namespace: flux-system
+spec:
+  type: telegram
+  channel: "-1003945056806:3" # Telegram channel Infrastructure Monitoring on topic Cluster K8S Monitoring
+  secretRef:
+    name: telegram-bot-token

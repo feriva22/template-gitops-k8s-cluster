@@ -1,0 +1,19 @@
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: telegram-alert
+  namespace: flux-system
+spec:
+  providerRef:
+    name: telegram-notifier
+  eventSeverity: error # Send alerts for failures/errors (use 'info' for all events)
+  eventSources:
+    # 1. Alert on Git pull/credential issues
+    - kind: GitRepository
+      name: '*'
+    # 2. Alert on Kustomize reconciliation errors
+    - kind: Kustomization
+      name: '*'
+    # 3. Alert on Helm release installation failures
+    - kind: HelmRelease
+      name: '*'
