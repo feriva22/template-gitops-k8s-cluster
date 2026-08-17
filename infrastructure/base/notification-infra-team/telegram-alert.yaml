@@ -7,6 +7,8 @@ spec:
   providerRef:
     name: telegram-notifier
   eventSeverity: error # Send alerts for failures/errors (use 'info' for all events)
+  # Rate limit: Suppress duplicate alerts for the same event for 1 hour
+  interval: 1h
   eventSources:
     # 1. Alert on Git pull/credential issues
     - kind: GitRepository

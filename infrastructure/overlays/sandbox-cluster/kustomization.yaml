@@ -17,3 +17,8 @@ patches:
       kind: Alert
       name: telegram-alert
       namespace: flux-system
+  - path: provider-summary-patch.yaml
+    target:
+      kind: Provider
+      name: telegram-notifier
+      namespace: flux-system
