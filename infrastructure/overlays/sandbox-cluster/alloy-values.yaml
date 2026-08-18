@@ -1,0 +1,57 @@
+alloy:
+  resources:
+    limits:
+      memory: 512Mi # Overriding base 256Mi
+  configMap:
+    content: |-
+      // Override Alloy config map for sandbox-cluster here if needed
+      logging {
+        level  = "debug" # Override info to debug for sandbox
+        format = "logfmt"
+      }
+      prometheus.operator.servicemonitors "node_only" {
+        selector {
+          match_expressions = [
+            { key = "app.kubernetes.io/name", operator = "In", values = ["prometheus-node-exporter", "kubelet"] },
+          ]
+        }
+        forward_to = [prometheus.relabel.node_local_filter.receiver]
+      }
+      prometheus.relabel "node_local_filter" {
+        forward_to = [prometheus.relabel.drop_high_cardinality.receiver]
+        rule {
+          action        = "keep"
+          source_labels = ["__meta_kubernetes_pod_node_name"]
+          regex         = sys.env("NODE_NAME")
+        }
+      }
+      prometheus.relabel "drop_high_cardinality" {
+        forward_to = [prometheus.remote_write.mimir.receiver]
+        rule {
+          action        = "drop"
+          source_labels = ["__name__"]
+          regex         = "(container_tasks_state|container_memory_failures_total|container_blkio_device_usage_total|container_fs_reads_merged_total|container_fs_writes_merged_total|container_cpu_cfs_throttled_periods_total|go_gc_.*|go_memstats_.*)"
+        }
+      }
+      prometheus.remote_write "mimir" {
+        endpoint {
+          url = "http://obs-sandbox-mimir-gateway.observability/api/v1/push"
+          headers = {
+            "X-Scope-OrgID" = "INFRA-2", # Overridden OrgID
+          }
+          queue_config {
+            capacity             = 500
+            max_samples_per_send = 500
+            max_shards           = 10
+          }
+        }
+        wal {
+          truncate_frequency = "1m"
+        }
+        external_labels = {
+          "cluster"     = "Sandbox-cluster", # Overridden label
+          "cloud"       = "onprem",
+          "environment" = "sandbox",                # Overridden environment
+          "region"      = "us-east-1",
+        }
+      }
