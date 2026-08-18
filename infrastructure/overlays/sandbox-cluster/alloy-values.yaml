@@ -8,12 +8,12 @@ alloy:
     content: |-
       // Override Alloy config map for sandbox-cluster here if needed
       logging {
-        level  = "debug" // Override info to debug for sandbox
+        level  = "info" // Override info to debug for sandbox
         format = "logfmt"
       }
 
       livedebugging {
-        enabled = true
+        enabled = false // Disable livedebugging for sandbox-cluster
       }
 
       // 1. Direct Local Scrape for Node Exporter (0% Network Cross-Talk)
@@ -106,6 +106,7 @@ alloy:
       prometheus.scrape "kubelet" {
         targets           = discovery.relabel.kubelet_target.output
         scheme            = "https"
+        scrape_interval   = "30s"
         bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
 
         tls_config {
@@ -120,7 +121,7 @@ alloy:
       prometheus.scrape "cadvisor" {
         targets           = discovery.relabel.cadvisor_target.output
         scheme            = "https"
-        scrape_interval   = "15s"
+        scrape_interval   = "30s"
         bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
 
         tls_config {
