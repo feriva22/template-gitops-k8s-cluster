@@ -15,7 +15,7 @@ alloy:
       livedebugging {
         enabled = true
       }
-      
+
       prometheus.operator.servicemonitors "node_only" {
         selector {
           match_expression {
@@ -31,7 +31,7 @@ alloy:
         rule {
           action        = "keep"
           source_labels = ["__meta_kubernetes_pod_node_name"]
-          regex         = sys.env("NODE_NAME")
+          regex         = sys.env("HOSTNAME")
         }
       }
       prometheus.relabel "drop_high_cardinality" {
