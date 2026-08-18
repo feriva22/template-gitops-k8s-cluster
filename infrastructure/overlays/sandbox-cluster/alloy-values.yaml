@@ -21,7 +21,7 @@ alloy:
         targets = [{
           "__address__" = string.format("%s:9100", sys.env("NODE_IP")),
           "instance"    = sys.env("NODE_NAME"),
-          "node"    = sys.env("NODE_NAME"), // Need to match with KSM (Kubernetes State Metrics) node label for node-level metrics
+          "node"        = sys.env("NODE_NAME"), // Need to match with KSM (Kubernetes State Metrics) node label for node-level metrics
           "job"         = "node-exporter",
         }]
 
@@ -45,7 +45,7 @@ alloy:
       }
 
       // -------------------------------------------------------------------
-      // Target Relabeling Pipelines (Path Rewrites)
+      // Target Relabeling Pipelines (Path Rewrites & Job Labels)
       // -------------------------------------------------------------------
 
       discovery.relabel "kubelet_target" {
@@ -55,6 +55,10 @@ alloy:
           source_labels = ["__metrics_path__"]
           target_label  = "metrics_path"
           action        = "replace"
+        }
+        rule {
+          target_label = "job"
+          replacement  = "kubelet"
         }
       }
 
@@ -70,6 +74,10 @@ alloy:
           target_label  = "metrics_path"
           action        = "replace"
         }
+        rule {
+          target_label = "job"
+          replacement  = "kubelet"
+        }
       }
 
       discovery.relabel "probes_target" {
@@ -83,6 +91,10 @@ alloy:
           source_labels = ["__metrics_path__"]
           target_label  = "metrics_path"
           action        = "replace"
+        }
+        rule {
+          target_label = "job"
+          replacement  = "kubelet"
         }
       }
 
