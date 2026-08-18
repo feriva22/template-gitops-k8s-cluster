@@ -15,7 +15,7 @@ spec:
   valuesFrom:
     - kind: ConfigMap
       name: alloy-values-override
-      optional: true
+      optional: false
   values:
     controller:
       type: 'daemonset'

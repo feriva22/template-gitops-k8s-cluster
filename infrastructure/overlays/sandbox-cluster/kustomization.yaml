@@ -26,5 +26,5 @@ configMapGenerator:
       - values.yaml=alloy-values.yaml
 
 # Prevents Kustomize from appending a random hash suffix (e.g., alloy-values-override-f8g9h2)
-generatorOptions:
-  disableNameSuffixHash: true
+# generatorOptions:
+#   disableNameSuffixHash: true
