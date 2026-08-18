@@ -33,7 +33,7 @@ alloy:
         role = "node"
       }
 
-      // Keep ONLY the node matching this local Alloy instance's node name
+      // 2. Filter targets to ONLY the local node running this Alloy pod
       discovery.relabel "local_node_only" {
         targets = discovery.kubernetes.nodes.targets
 
@@ -45,63 +45,13 @@ alloy:
       }
 
       // -------------------------------------------------------------------
-      // Scrape Components (Pointed to local_node_only)
+      // Target Relabeling Pipelines (Configures metrics path per target)
       // -------------------------------------------------------------------
 
-      // Target 1: Default Kubelet Metrics (/metrics)
-      prometheus.scrape "kubelet" {
-        targets           = discovery.relabel.local_node_only.output
-        scheme            = "https"
-        bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-
-        tls_config {
-          ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-          insecure_skip_verify = true
-        }
-
-        relabel_rules        = discovery.relabel.kubelet_base.rules
-        metric_relabel_rules = prometheus.relabel.kubelet_metrics.rules
-        forward_to           = [prometheus.relabel.drop_high_cardinality.receiver]
-      }
-
-      // Target 2: cAdvisor Metrics (/metrics/cadvisor)
-      prometheus.scrape "cadvisor" {
-        targets           = discovery.relabel.local_node_only.output
-        scheme            = "https"
-        scrape_interval   = "10s"
-        bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-
-        tls_config {
-          ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-          insecure_skip_verify = true
-        }
-
-        relabel_rules        = discovery.relabel.cadvisor_base.rules
-        metric_relabel_rules = prometheus.relabel.cadvisor_metrics.rules
-        forward_to           = [prometheus.relabel.drop_high_cardinality.receiver]
-      }
-
-      // Target 3: Probes Metrics (/metrics/probes)
-      prometheus.scrape "probes" {
-        targets           = discovery.relabel.local_node_only.output
-        scheme            = "https"
-        bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-
-        tls_config {
-          ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-          insecure_skip_verify = true
-        }
-
-        relabel_rules = discovery.relabel.probes_base.rules
-        forward_to    = [prometheus.relabel.drop_high_cardinality.receiver]
-      }
-
-      // -------------------------------------------------------------------
-      // Target Relabelings
-      // -------------------------------------------------------------------
-
-      discovery.relabel "kubelet_base" {
+      // Kubelet Base (/metrics)
+      discovery.relabel "kubelet_target" {
         targets = discovery.relabel.local_node_only.output
+
         rule {
           source_labels = ["__metrics_path__"]
           target_label  = "metrics_path"
@@ -109,8 +59,10 @@ alloy:
         }
       }
 
-      discovery.relabel "cadvisor_base" {
+      // cAdvisor Target (/metrics/cadvisor)
+      discovery.relabel "cadvisor_target" {
         targets = discovery.relabel.local_node_only.output
+
         rule {
           target_label = "__metrics_path__"
           replacement  = "/metrics/cadvisor"
@@ -122,8 +74,10 @@ alloy:
         }
       }
 
-      discovery.relabel "probes_base" {
+      // Probes Target (/metrics/probes)
+      discovery.relabel "probes_target" {
         targets = discovery.relabel.local_node_only.output
+
         rule {
           target_label = "__metrics_path__"
           replacement  = "/metrics/probes"
@@ -136,7 +90,56 @@ alloy:
       }
 
       // -------------------------------------------------------------------
-      // Metric Relabel Rules (Metric Drops)
+      // Scrape Components (Consume relabeled targets directly)
+      // -------------------------------------------------------------------
+
+      // Target 1: Default Kubelet Metrics (/metrics)
+      prometheus.scrape "kubelet" {
+        targets           = discovery.relabel.kubelet_target.output
+        scheme            = "https"
+        bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+        tls_config {
+          ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+          insecure_skip_verify = true
+        }
+
+        metric_relabel_rules = prometheus.relabel.kubelet_metrics.rules
+        forward_to           = [prometheus.remote_write.mimir.receiver]
+      }
+
+      // Target 2: cAdvisor Metrics (/metrics/cadvisor)
+      prometheus.scrape "cadvisor" {
+        targets           = discovery.relabel.cadvisor_target.output
+        scheme            = "https"
+        scrape_interval   = "10s"
+        bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+        tls_config {
+          ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+          insecure_skip_verify = true
+        }
+
+        metric_relabel_rules = prometheus.relabel.cadvisor_metrics.rules
+        forward_to           = [prometheus.remote_write.mimir.receiver]
+      }
+
+      // Target 3: Probes Metrics (/metrics/probes)
+      prometheus.scrape "probes" {
+        targets           = discovery.relabel.probes_target.output
+        scheme            = "https"
+        bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+        tls_config {
+          ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+          insecure_skip_verify = true
+        }
+
+        forward_to = [prometheus.remote_write.mimir.receiver]
+      }
+
+      // -------------------------------------------------------------------
+      // Metric Relabel Rules (Metric Drops - Applied inside Scrape)
       // -------------------------------------------------------------------
 
       prometheus.relabel "kubelet_metrics" {
@@ -198,7 +201,7 @@ alloy:
           regex         = "(container_tasks_state|container_memory_failures_total|container_blkio_device_usage_total|container_fs_reads_merged_total|container_fs_writes_merged_total|container_cpu_cfs_throttled_periods_total|go_gc_.*|go_memstats_.*)"
         }
       }
-      
+
       prometheus.remote_write "mimir" {
         endpoint {
           url = "http://obs-sandbox-mimir-gateway.observability/api/v1/push"
