@@ -5,4 +5,5 @@ resources:
   - HelmRepository-prometheus.yaml
   - HelmRepository-grafana.yaml
   - HelmRelease-prometheus.yaml
+  - HelmRelease-alloy-cluster-wide.yaml
   - HelmRelease-alloy.yaml
