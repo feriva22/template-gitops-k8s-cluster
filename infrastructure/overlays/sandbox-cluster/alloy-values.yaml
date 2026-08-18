@@ -45,10 +45,9 @@ alloy:
       }
 
       // -------------------------------------------------------------------
-      // Target Relabeling Pipelines (Configures metrics path per target)
+      // Target Relabeling Pipelines (Path Rewrites)
       // -------------------------------------------------------------------
 
-      // Kubelet Base (/metrics)
       discovery.relabel "kubelet_target" {
         targets = discovery.relabel.local_node_only.output
 
@@ -59,7 +58,6 @@ alloy:
         }
       }
 
-      // cAdvisor Target (/metrics/cadvisor)
       discovery.relabel "cadvisor_target" {
         targets = discovery.relabel.local_node_only.output
 
@@ -74,7 +72,6 @@ alloy:
         }
       }
 
-      // Probes Target (/metrics/probes)
       discovery.relabel "probes_target" {
         targets = discovery.relabel.local_node_only.output
 
@@ -90,7 +87,7 @@ alloy:
       }
 
       // -------------------------------------------------------------------
-      // Scrape Components (Consume relabeled targets directly)
+      // Scrape Components (Forwarding to metric relabelers)
       // -------------------------------------------------------------------
 
       // Target 1: Default Kubelet Metrics (/metrics)
@@ -104,8 +101,7 @@ alloy:
           insecure_skip_verify = true
         }
 
-        metric_relabel_rules = prometheus.relabel.kubelet_metrics.rules
-        forward_to           = [prometheus.remote_write.mimir.receiver]
+        forward_to = [prometheus.relabel.kubelet_metrics.receiver]
       }
 
       // Target 2: cAdvisor Metrics (/metrics/cadvisor)
@@ -120,8 +116,7 @@ alloy:
           insecure_skip_verify = true
         }
 
-        metric_relabel_rules = prometheus.relabel.cadvisor_metrics.rules
-        forward_to           = [prometheus.remote_write.mimir.receiver]
+        forward_to = [prometheus.relabel.cadvisor_metrics.receiver]
       }
 
       // Target 3: Probes Metrics (/metrics/probes)
@@ -139,10 +134,12 @@ alloy:
       }
 
       // -------------------------------------------------------------------
-      // Metric Relabel Rules (Metric Drops - Applied inside Scrape)
+      // Metric Relabel Components (Processing metrics then sending to remote_write)
       // -------------------------------------------------------------------
 
       prometheus.relabel "kubelet_metrics" {
+        forward_to = [prometheus.remote_write.mimir.receiver]
+
         rule {
           source_labels = ["__name__", "le"]
           regex         = "(csi_operations|storage_operation_duration)_seconds_bucket;(0.25|2.5|15|25|120|600)(\\.0)?"
@@ -151,6 +148,8 @@ alloy:
       }
 
       prometheus.relabel "cadvisor_metrics" {
+        forward_to = [prometheus.remote_write.mimir.receiver]
+
         rule {
           source_labels = ["__name__"]
           regex         = "container_cpu_(cfs_throttled_seconds_total|load_average_10s|system_seconds_total|user_seconds_total)"
