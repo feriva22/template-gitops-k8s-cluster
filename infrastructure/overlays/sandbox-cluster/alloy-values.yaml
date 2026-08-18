@@ -21,6 +21,7 @@ alloy:
         targets = [{
           "__address__" = string.format("%s:9100", sys.env("NODE_IP")),
           "instance"    = sys.env("NODE_NAME"),
+          "node"    = sys.env("NODE_NAME"), // Need to match with KSM (Kubernetes State Metrics) node label for node-level metrics
           "job"         = "node-exporter",
         }]
 
