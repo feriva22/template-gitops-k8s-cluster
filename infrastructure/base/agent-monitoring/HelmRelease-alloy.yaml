@@ -24,10 +24,6 @@ spec:
     alloy:
       clustering:
         enabled: false
-      resources:
-        limits:
-          cpu: null
-          memory: 256Mi
       extraEnv:
         - name: GOMEMLIMIT
           value: "75MiB"
