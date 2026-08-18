@@ -11,12 +11,17 @@ alloy:
         level  = "debug" // Override info to debug for sandbox
         format = "logfmt"
       }
+
+      livedebugging {
+        enabled = true
+      }
+      
       prometheus.operator.servicemonitors "node_only" {
         selector {
           match_expression {
             key      = "app.kubernetes.io/name"
             operator = "In"
-            values   = ["prometheus-node-exporter", "kubelet"]
+            values   = ["prometheus-node-exporter"]
           }
         }
         forward_to = [prometheus.relabel.node_local_filter.receiver]
