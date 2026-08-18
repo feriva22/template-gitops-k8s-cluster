@@ -1,7 +1,9 @@
 alloy:
   resources:
+    requests:
+      memory: 128Mi # Need to set a request for Alloy to avoid OOMKilled in sandbox-cluster
     limits:
-      memory: 512Mi # Overriding base 256Mi
+      memory: 256Mi
   configMap:
     content: |-
       // Override Alloy config map for sandbox-cluster here if needed
