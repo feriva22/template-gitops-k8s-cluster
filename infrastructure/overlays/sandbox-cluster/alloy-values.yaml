@@ -19,7 +19,7 @@ alloy:
       // 1. Direct Local Scrape for Node Exporter (0% Network Cross-Talk)
       prometheus.scrape "node_exporter_local" {
         targets = [{
-          "__address__" = "127.0.0.1:9100",
+          "__address__" = "string.format("%s:9100", sys.env("NODE_IP"))",
           "instance"    = sys.env("NODE_NAME"),
           "job"         = "node-exporter",
         }]
