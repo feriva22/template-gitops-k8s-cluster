@@ -16,6 +16,21 @@ alloy:
         enabled = true
       }
 
+      // Sync Kubernetes PrometheusRule CRDs directly to Mimir Ruler API
+      mimir.rules.kubernetes "mimir_rules_sync" {
+        address   = "http://obs-sandbox-mimir-ruler.observability:8080"
+        tenant_id = "INFRA-2"
+
+        // Optional: Filter rules by namespace if you don't want all namespaces synced
+        rule_selector {
+          match_expression {
+            key      = "release"
+            operator = "In"
+            values   = ["kube-prometheus-stack"]
+          }
+        }
+      }
+
       // Scrape KSM Service directly or via ServiceMonitor discovery
       prometheus.operator.servicemonitors "cluster_wide_metrics" {
         selector {
