@@ -29,3 +29,7 @@ spec:
           value: "75MiB"
         - name: GOGC
           value: "50"
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName

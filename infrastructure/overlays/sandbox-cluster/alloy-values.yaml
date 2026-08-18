@@ -16,24 +16,17 @@ alloy:
         enabled = true
       }
 
-      prometheus.operator.servicemonitors "node_only" {
-        selector {
-          match_expression {
-            key      = "app.kubernetes.io/name"
-            operator = "In"
-            values   = ["prometheus-node-exporter"]
-          }
-        }
-        forward_to = [prometheus.relabel.node_local_filter.receiver]
-      }
-      prometheus.relabel "node_local_filter" {
+      // 1. Direct Local Scrape for Node Exporter (0% Network Cross-Talk)
+      prometheus.scrape "node_exporter_local" {
+        targets = [{
+          "__address__" = "127.0.0.1:9100",
+          "instance"    = sys.env("NODE_NAME"),
+          "job"         = "node-exporter",
+        }]
+
         forward_to = [prometheus.relabel.drop_high_cardinality.receiver]
-        rule {
-          action        = "keep"
-          source_labels = ["__meta_kubernetes_pod_node_name"]
-          regex         = sys.env("HOSTNAME")
-        }
       }
+
       prometheus.relabel "drop_high_cardinality" {
         forward_to = [prometheus.remote_write.mimir.receiver]
         rule {

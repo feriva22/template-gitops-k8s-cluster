@@ -25,6 +25,8 @@ spec:
       enabled: true
     nodeExporter:
       enabled: true
+      service:
+        enabled: false
     kubeStateMetrics:
       enabled: true
     defaultRules:
