@@ -46,9 +46,13 @@ spec:
 
           prometheus.operator.servicemonitors "node_only" {
             selector {
-              match_expressions = [
-                { key = "app.kubernetes.io/name", operator = "In", values = ["prometheus-node-exporter", "kubelet"] },
-              ]
+              selector {
+                match_expression {
+                  key      = "app.kubernetes.io/name"
+                  operator = "In"
+                  values   = ["prometheus-node-exporter", "kubelet"]
+                }
+              }
             }
             forward_to = [prometheus.relabel.node_local_filter.receiver]
           }
