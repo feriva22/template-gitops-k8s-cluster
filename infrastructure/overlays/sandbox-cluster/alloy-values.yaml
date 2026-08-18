@@ -130,7 +130,7 @@ alloy:
           insecure_skip_verify = true
         }
 
-        forward_to = [prometheus.remote_write.mimir.receiver]
+        forward_to = [prometheus.relabel.drop_high_cardinality.receiver]
       }
 
       // -------------------------------------------------------------------
@@ -138,7 +138,7 @@ alloy:
       // -------------------------------------------------------------------
 
       prometheus.relabel "kubelet_metrics" {
-        forward_to = [prometheus.remote_write.mimir.receiver]
+        forward_to = [prometheus.relabel.drop_high_cardinality.receiver]
 
         rule {
           source_labels = ["__name__", "le"]
@@ -148,7 +148,7 @@ alloy:
       }
 
       prometheus.relabel "cadvisor_metrics" {
-        forward_to = [prometheus.remote_write.mimir.receiver]
+        forward_to = [prometheus.relabel.drop_high_cardinality.receiver]
 
         rule {
           source_labels = ["__name__"]
