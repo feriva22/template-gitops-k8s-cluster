@@ -1,0 +1,238 @@
+alloy:
+  resources:
+    requests:
+      memory: 128Mi # Need to set a request for Alloy to avoid OOMKilled in sandbox-rabbitmq-cluster
+    limits:
+      memory: 256Mi
+  configMap:
+    content: |-
+      // Override Alloy config map for sandbox-rabbitmq-cluster here if needed
+      logging {
+        level  = "info" // Override info to debug for sandbox
+        format = "logfmt"
+      }
+
+      livedebugging {
+        enabled = false // Disable livedebugging for sandbox-rabbitmq-cluster
+      }
+
+      // 1. Direct Local Scrape for Node Exporter (0% Network Cross-Talk)
+      prometheus.scrape "node_exporter_local" {
+        targets = [{
+          "__address__" = string.format("%s:9100", sys.env("NODE_IP")),
+          "instance"    = sys.env("NODE_NAME"),
+          "node"        = sys.env("NODE_NAME"), // Need to match with KSM (Kubernetes State Metrics) node label for node-level metrics
+          "job"         = "node-exporter",
+        }]
+
+        forward_to = [prometheus.relabel.drop_high_cardinality.receiver]
+      }
+
+      // Discover Kubernetes nodes
+      discovery.kubernetes "nodes" {
+        role = "node"
+      }
+
+      // 2. Filter targets to ONLY the local node running this Alloy pod
+      discovery.relabel "local_node_only" {
+        targets = discovery.kubernetes.nodes.targets
+
+        rule {
+          source_labels = ["__meta_kubernetes_node_name"]
+          regex         = sys.env("NODE_NAME")
+          action        = "keep"
+        }
+      }
+
+      // -------------------------------------------------------------------
+      // Target Relabeling Pipelines (Path Rewrites & Job Labels)
+      // -------------------------------------------------------------------
+
+      discovery.relabel "kubelet_target" {
+        targets = discovery.relabel.local_node_only.output
+
+        rule {
+          source_labels = ["__metrics_path__"]
+          target_label  = "metrics_path"
+          action        = "replace"
+        }
+        rule {
+          target_label = "job"
+          replacement  = "kubelet"
+        }
+      }
+
+      discovery.relabel "cadvisor_target" {
+        targets = discovery.relabel.local_node_only.output
+
+        rule {
+          target_label = "__metrics_path__"
+          replacement  = "/metrics/cadvisor"
+        }
+        rule {
+          source_labels = ["__metrics_path__"]
+          target_label  = "metrics_path"
+          action        = "replace"
+        }
+        rule {
+          target_label = "job"
+          replacement  = "kubelet"
+        }
+      }
+
+      discovery.relabel "probes_target" {
+        targets = discovery.relabel.local_node_only.output
+
+        rule {
+          target_label = "__metrics_path__"
+          replacement  = "/metrics/probes"
+        }
+        rule {
+          source_labels = ["__metrics_path__"]
+          target_label  = "metrics_path"
+          action        = "replace"
+        }
+        rule {
+          target_label = "job"
+          replacement  = "kubelet"
+        }
+      }
+
+      // -------------------------------------------------------------------
+      // Scrape Components (Forwarding to metric relabelers)
+      // -------------------------------------------------------------------
+
+      // Target 1: Default Kubelet Metrics (/metrics)
+      prometheus.scrape "kubelet" {
+        targets           = discovery.relabel.kubelet_target.output
+        scheme            = "https"
+        scrape_interval   = "30s"
+        bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+        tls_config {
+          ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+          insecure_skip_verify = true
+        }
+
+        forward_to = [prometheus.relabel.kubelet_metrics.receiver]
+      }
+
+      // Target 2: cAdvisor Metrics (/metrics/cadvisor)
+      prometheus.scrape "cadvisor" {
+        targets           = discovery.relabel.cadvisor_target.output
+        scheme            = "https"
+        scrape_interval   = "30s"
+        bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+        tls_config {
+          ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+          insecure_skip_verify = true
+        }
+
+        forward_to = [prometheus.relabel.cadvisor_metrics.receiver]
+      }
+
+      // Target 3: Probes Metrics (/metrics/probes)
+      prometheus.scrape "probes" {
+        targets           = discovery.relabel.probes_target.output
+        scheme            = "https"
+        bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+        tls_config {
+          ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+          insecure_skip_verify = true
+        }
+
+        forward_to = [prometheus.relabel.drop_high_cardinality.receiver]
+      }
+
+      // -------------------------------------------------------------------
+      // Metric Relabel Components (Processing metrics then sending to remote_write)
+      // -------------------------------------------------------------------
+
+      prometheus.relabel "kubelet_metrics" {
+        forward_to = [prometheus.relabel.drop_high_cardinality.receiver]
+
+        rule {
+          source_labels = ["__name__", "le"]
+          regex         = "(csi_operations|storage_operation_duration)_seconds_bucket;(0.25|2.5|15|25|120|600)(\\.0)?"
+          action        = "drop"
+        }
+      }
+
+      prometheus.relabel "cadvisor_metrics" {
+        forward_to = [prometheus.relabel.drop_high_cardinality.receiver]
+
+        rule {
+          source_labels = ["__name__"]
+          regex         = "container_cpu_(cfs_throttled_seconds_total|load_average_10s|system_seconds_total|user_seconds_total)"
+          action        = "drop"
+        }
+        rule {
+          source_labels = ["__name__"]
+          regex         = "container_fs_(io_current|io_time_seconds_total|io_time_weighted_seconds_total|reads_merged_total|sector_reads_total|sector_writes_total|writes_merged_total)"
+          action        = "drop"
+        }
+        rule {
+          source_labels = ["__name__"]
+          regex         = "container_memory_(mapped_file|swap)"
+          action        = "drop"
+        }
+        rule {
+          source_labels = ["__name__"]
+          regex         = "container_(file_descriptors|tasks_state|threads_max)"
+          action        = "drop"
+        }
+        rule {
+          source_labels = ["__name__", "scope"]
+          regex         = "container_memory_failures_total;hierarchy"
+          action        = "drop"
+        }
+        rule {
+          source_labels = ["__name__", "interface"]
+          regex         = "container_network_.*;(cali|cilium|cni|lxc|nodelocaldns|tunl).*"
+          action        = "drop"
+        }
+        rule {
+          source_labels = ["__name__"]
+          regex         = "container_spec.*"
+          action        = "drop"
+        }
+        rule {
+          source_labels = ["id", "pod"]
+          regex         = ".+;"
+          action        = "drop"
+        }
+      }
+
+      prometheus.relabel "drop_high_cardinality" {
+        forward_to = [prometheus.remote_write.mimir.receiver]
+        // rule {
+        //   action        = "drop"
+        //   source_labels = ["__name__"]
+        //   regex         = "(container_tasks_state|container_memory_failures_total|container_blkio_device_usage_total|container_fs_reads_merged_total|container_fs_writes_merged_total|container_cpu_cfs_throttled_periods_total|go_gc_.*|go_memstats_.*)"
+        // }
+      }
+
+      prometheus.remote_write "mimir" {
+        endpoint {
+          url = "http:/observability.posindonesia.co.id/api/v1/push"
+          headers = {
+            "X-Scope-OrgID" = "INFRA-SANDBOX", // Overridden OrgID
+          }
+          queue_config {
+            capacity             = 500
+            max_samples_per_send = 500
+            max_shards           = 10
+          }
+        }
+        wal {
+          truncate_frequency = "1m"
+        }
+        external_labels = {
+          "cluster"     = "sandbox-rabbitmq-cluster", // Overridden label
+          "cloud"       = "onprem",
+          "environment" = "sandbox",                // Overridden environment
+          "region"      = "us-east-1",
+        }
+      }
