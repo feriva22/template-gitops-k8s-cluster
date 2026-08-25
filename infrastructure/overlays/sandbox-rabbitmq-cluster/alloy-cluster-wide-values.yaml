@@ -24,6 +24,12 @@ alloy:
 
       // Scrape KSM Service directly or via ServiceMonitor discovery
       prometheus.operator.servicemonitors "cluster_wide_metrics" {
+        namespaces = ["monitoring"]
+        forward_to = [prometheus.remote_write.mimir.receiver]
+      }
+
+      prometheus.operator.servicemonitors "rabbitmq_metrics" {
+        namespaces = ["rabbitmq"]
         forward_to = [prometheus.remote_write.mimir.receiver]
       }
 
