@@ -3,7 +3,7 @@ alloy:
     requests:
       memory: 128Mi # Need to set a request for Alloy to avoid OOMKilled in sandbox-rabbitmq-cluster
     limits:
-      memory: 256Mi
+      memory: 512Mi
   configMap:
     content: |-
       // Override Alloy config map for sandbox-rabbitmq-cluster here if needed
