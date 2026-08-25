@@ -236,3 +236,8 @@ alloy:
           "region"      = "us-east-1",
         }
       }
+controller:
+  hostAliases:
+    - ip: "192.169.220.39"
+      hostnames:
+        - "observability.posindonesia.co.id"
