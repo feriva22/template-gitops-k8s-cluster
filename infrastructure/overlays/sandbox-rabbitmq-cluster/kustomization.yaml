@@ -14,12 +14,13 @@ patches:
       name: telegram-alert
       namespace: flux-system
 
+  - path: delete-alloy-daemonset.yaml
+    target:
+      kind: HelmRelease
+      name: alloy
+      namespace: monitoring
+
 configMapGenerator:
-  - name: alloy-values-override
-    namespace: monitoring
-    files:
-      - values.yaml=alloy-values.yaml
-      
   - name: alloy-cluster-wide-values-override
     namespace: monitoring
     files:

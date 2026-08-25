@@ -20,26 +20,10 @@ alloy:
       mimir.rules.kubernetes "mimir_rules_sync" {
         address   = "http://observability.posindonesia.co.id"
         tenant_id = "INFRA-SANDBOX"
-
-        // Optional: Filter rules by namespace if you don't want all namespaces synced
-        rule_selector {
-          match_expression {
-            key      = "release"
-            operator = "In"
-            values   = ["kube-prometheus-stack"]
-          }
-        }
       }
 
       // Scrape KSM Service directly or via ServiceMonitor discovery
       prometheus.operator.servicemonitors "cluster_wide_metrics" {
-        selector {
-          match_expression {
-            key      = "app.kubernetes.io/name"
-            operator = "In"
-            values   = ["kube-state-metrics"]
-          }
-        }
         forward_to = [prometheus.remote_write.mimir.receiver]
       }
 
