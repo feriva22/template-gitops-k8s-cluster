@@ -8,18 +8,18 @@ alloy:
     content: |-
       // Override Alloy config map for sandbox-rabbitmq-cluster here if needed
       logging {
-        level  = "debug" // Override info to debug for sandbox
+        level  = "info" // Override info to debug for sandbox
         format = "logfmt"
       }
 
       livedebugging {
-        enabled = true
+        enabled = false // Disable livedebugging for sandbox-rabbitmq-cluster
       }
 
       // Sync Kubernetes PrometheusRule CRDs directly to Mimir Ruler API
-      // mimir.rules.kubernetes "mimir_rules_sync" {
-      //   address   = "http:/observability.posindonesia.co.id"
-      //   tenant_id = "INFRA-SANDBOX"
+      mimir.rules.kubernetes "mimir_rules_sync" {
+        address   = "http://observability.posindonesia.co.id"
+        tenant_id = "INFRA-SANDBOX"
 
       //   // Optional: Filter rules by namespace if you don't want all namespaces synced
       //   rule_selector {
