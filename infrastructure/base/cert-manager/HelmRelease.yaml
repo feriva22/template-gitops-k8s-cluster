@@ -5,9 +5,15 @@ metadata:
   namespace: flux-system
 spec:
   interval: 30m
+  releaseName: cert-manager
   targetNamespace: cert-manager
   install:
     createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      remediateLastFailure: true
   chart:
     spec:
       chart: cert-manager
