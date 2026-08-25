@@ -46,7 +46,7 @@ alloy:
           }
         }
         wal {
-          truncate_frequency = "1m"
+          truncate_frequency = "5m"
         }
         external_labels = {
           "cluster"     = "Sandbox-rabbitmq-cluster", // Overridden label
