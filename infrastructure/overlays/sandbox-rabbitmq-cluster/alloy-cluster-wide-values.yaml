@@ -21,15 +21,15 @@ alloy:
         address   = "http://observability.posindonesia.co.id"
         tenant_id = "INFRA-SANDBOX"
 
-      //   // Optional: Filter rules by namespace if you don't want all namespaces synced
-      //   rule_selector {
-      //     match_expression {
-      //       key      = "release"
-      //       operator = "In"
-      //       values   = ["kube-prometheus-stack"]
-      //     }
-      //   }
-      // }
+        // Optional: Filter rules by namespace if you don't want all namespaces synced
+        rule_selector {
+          match_expression {
+            key      = "release"
+            operator = "In"
+            values   = ["kube-prometheus-stack"]
+          }
+        }
+      }
 
       // Scrape KSM Service directly or via ServiceMonitor discovery
       prometheus.operator.servicemonitors "cluster_wide_metrics" {
