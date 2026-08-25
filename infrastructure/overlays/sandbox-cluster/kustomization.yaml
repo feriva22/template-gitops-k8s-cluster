@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - ../../base/notification-infra-team
   - ../../base/agent-monitoring
+  - ../../base/cert-manager
   - ../../base/argocd
   # - non-existent-file.yaml # <--- Will cause Kustomize build failure
 

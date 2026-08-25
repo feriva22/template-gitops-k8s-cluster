@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - ../../base/notification-infra-team
   - ../../base/agent-monitoring
+  - ../../base/cert-manager
   # - non-existent-file.yaml # <--- Will cause Kustomize build failure
 
 # Strategic merge patch to apply production HA values over the base HelmRelease
