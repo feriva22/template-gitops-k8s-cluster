@@ -4,8 +4,8 @@ metadata:
   name: telegram-alert
   namespace: flux-system
 spec:
-  summary: "🚨 [sandbox-rabbitmq-cluster | sandbox]"
+  summary: "🚨 [sandbox-redis-cluster | sandbox]"
   eventMetadata:
     env: sandbox
-    cluster: sandbox-rabbitmq-cluster
+    cluster: sandbox-redis-cluster
     region: us-east-1
