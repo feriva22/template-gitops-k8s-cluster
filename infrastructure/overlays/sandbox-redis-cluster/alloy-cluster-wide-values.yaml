@@ -1,0 +1,61 @@
+alloy:
+  resources:
+    requests:
+      memory: 128Mi # Need to set a request for Alloy to avoid OOMKilled in sandbox-rabbitmq-cluster
+    limits:
+      memory: 512Mi
+  configMap:
+    content: |-
+      // Override Alloy config map for sandbox-rabbitmq-cluster here if needed
+      logging {
+        level  = "info" // Override info to debug for sandbox
+        format = "logfmt"
+      }
+
+      livedebugging {
+        enabled = false // Disable livedebugging for sandbox-rabbitmq-cluster
+      }
+
+      // Sync Kubernetes PrometheusRule CRDs directly to Mimir Ruler API
+      mimir.rules.kubernetes "mimir_rules_sync" {
+        address   = "http://observability.posindonesia.co.id"
+        tenant_id = "INFRA-SANDBOX"
+      }
+
+      // Scrape KSM Service directly or via ServiceMonitor discovery
+      prometheus.operator.servicemonitors "cluster_wide_metrics" {
+        namespaces = ["monitoring"]
+        forward_to = [prometheus.remote_write.mimir.receiver]
+      }
+
+      prometheus.operator.servicemonitors "rabbitmq_metrics" {
+        namespaces = ["rabbitmq"]
+        forward_to = [prometheus.remote_write.mimir.receiver]
+      }
+
+      prometheus.remote_write "mimir" {
+        endpoint {
+          url = "http://observability.posindonesia.co.id/api/v1/push"
+          headers = {
+            "X-Scope-OrgID" = "INFRA-SANDBOX", // Overridden OrgID
+          }
+          queue_config {
+            capacity             = 500
+            max_samples_per_send = 500
+            max_shards           = 10
+          }
+        }
+        wal {
+          truncate_frequency = "5m"
+        }
+        external_labels = {
+          "cluster"     = "Sandbox-rabbitmq-cluster", // Overridden label
+          "cloud"       = "onprem",
+          "environment" = "sandbox",                // Overridden environment
+          "region"      = "us-east-1",
+        }
+      }
+  hostAliases:
+    - ip: "192.169.220.39"
+      hostnames:
+        - "observability.posindonesia.co.id"

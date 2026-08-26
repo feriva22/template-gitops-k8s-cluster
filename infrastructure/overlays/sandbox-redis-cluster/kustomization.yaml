@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base/notification-infra-team
+  # - ../../base/agent-monitoring
+  # - non-existent-file.yaml # <--- Will cause Kustomize build failure
+
+# Strategic merge patch to apply production HA values over the base HelmRelease
+patches:
+  - path: alert-eventmetadata-patch.yaml
+    target:
+      kind: Alert
+      name: telegram-alert
+      namespace: flux-system
+
+  # - path: delete-alloy-daemonset.yaml
+  #   target:
+  #     kind: HelmRelease
+  #     name: alloy
+  #     namespace: monitoring
+
+configMapGenerator:
+  - name: alloy-values-override
+    namespace: monitoring
+    files:
+      - values.yaml=alloy-values.yaml
+      
+  - name: alloy-cluster-wide-values-override
+    namespace: monitoring
+    files:
+      - values.yaml=alloy-cluster-wide-values.yaml
+
+# Prevents Kustomize from adding the random hash suffix
+generatorOptions:
+  disableNameSuffixHash: true

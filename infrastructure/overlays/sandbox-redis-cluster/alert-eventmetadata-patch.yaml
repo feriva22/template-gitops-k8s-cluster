@@ -1,0 +1,11 @@
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: telegram-alert
+  namespace: flux-system
+spec:
+  summary: "🚨 [sandbox-rabbitmq-cluster | sandbox]"
+  eventMetadata:
+    env: sandbox
+    cluster: sandbox-rabbitmq-cluster
+    region: us-east-1
