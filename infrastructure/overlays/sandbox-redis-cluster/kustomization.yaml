@@ -19,16 +19,16 @@ patches:
   #     name: alloy
   #     namespace: monitoring
 
-configMapGenerator:
-  - name: alloy-values-override
-    namespace: monitoring
-    files:
-      - values.yaml=alloy-values.yaml
-      
-  - name: alloy-cluster-wide-values-override
-    namespace: monitoring
-    files:
-      - values.yaml=alloy-cluster-wide-values.yaml
+# configMapGenerator:
+#   - name: alloy-values-override
+#     namespace: monitoring
+#     files:
+#       - values.yaml=alloy-values.yaml
+#       
+#   - name: alloy-cluster-wide-values-override
+#     namespace: monitoring
+#     files:
+#       - values.yaml=alloy-cluster-wide-values.yaml
 
 # Prevents Kustomize from adding the random hash suffix
 generatorOptions:
