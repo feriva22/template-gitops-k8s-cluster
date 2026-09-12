@@ -8,7 +8,7 @@ alloy:
     content: |-
       // Override Alloy config map for sandbox-cluster here if needed
       logging {
-        level  = "debug" // Override info to debug for sandbox
+        level  = "info" // Override info to debug for sandbox
         format = "logfmt"
       }
 
@@ -37,7 +37,7 @@ alloy:
           match_expression {
             key      = "app.kubernetes.io/name"
             operator = "In"
-            values   = ["kube-state-metrics"]
+            values   = ["kube-state-metrics","kube-prometheus-stack-prometheus-operator"]
           }
         }
         forward_to = [prometheus.remote_write.mimir.receiver]
