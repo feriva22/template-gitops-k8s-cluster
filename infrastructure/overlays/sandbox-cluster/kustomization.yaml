@@ -25,6 +25,11 @@ patches:
       kind: HelmRelease
       name: kube-prometheus-stack
       namespace: monitoring
+  - path: delete-alloy.yaml
+    target:
+      kind: HelmRelease
+      name: alloy
+      namespace: monitoring
 
 configMapGenerator:
   - name: alloy-values-override
