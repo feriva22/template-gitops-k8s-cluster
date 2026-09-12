@@ -32,6 +32,9 @@ alloy:
             values   = ["kube-prometheus-stack-kube-proxy","kube-prometheus-stack-kubelet"]
           }
         }
+        namespaces    = ["monitoring"]
+        kubernetes_role = "endpointslice" //Endpoints are deprecated in Kubernetes and are heavier objects. endpointslice is the modern, leaner resource
+
         forward_to = [prometheus.relabel.node_local_filter.receiver]
       }
 
@@ -44,6 +47,9 @@ alloy:
             values   = ["prometheus-node-exporter"]
           }
         }
+        namespaces    = ["monitoring"]
+        kubernetes_role = "endpointslice" //Endpoints are deprecated in Kubernetes and are heavier objects. endpointslice is the modern, leaner resource
+        
         forward_to = [prometheus.relabel.node_local_filter.receiver]
       }
 
