@@ -4,6 +4,9 @@ metadata:
   name: kube-prometheus-stack
   namespace: monitoring
 spec:
+  chart:
+    spec:
+      version: "90.1.1"
   values:
     # Disable Kubernetes component ServiceMonitors that are not required
     # (or cannot be scraped) in the ACK-Kurir-Prod cluster. The base HelmRelease
