@@ -49,7 +49,12 @@ alloy:
         }
         namespaces    = ["monitoring"]
         kubernetes_role = "endpointslice" //Endpoints are deprecated in Kubernetes and are heavier objects. endpointslice is the modern, leaner resource
-        
+
+        scrape {
+          default_scrape_interval = "60s"
+          default_scrape_timeout  = "10s"
+        }
+
         forward_to = [prometheus.relabel.node_local_filter.receiver]
       }
 
