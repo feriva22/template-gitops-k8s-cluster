@@ -13,7 +13,7 @@ alloy:
       }
 
       livedebugging {
-        enabled = true // Disable livedebugging for sandbox-cluster
+        enabled = false // Disable livedebugging for sandbox-cluster
       }
 
       // Scrape Node Specific Metrics
