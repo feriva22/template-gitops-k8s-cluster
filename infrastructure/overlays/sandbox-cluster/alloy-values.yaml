@@ -46,15 +46,15 @@ alloy:
           headers = {
             "X-Scope-OrgID" = "INFRA-2", // Overridden OrgID
           }
-          queue_config {
-            capacity             = 500
-            max_samples_per_send = 500
-            max_shards           = 10
-          }
+          // queue_config {
+          //   capacity             = 500
+          //   max_samples_per_send = 500
+          //   max_shards           = 10
+          // }
         }
-        wal {
-          truncate_frequency = "1m"
-        }
+        //wal {
+        //  truncate_frequency = "1m"
+        //}
         external_labels = {
           "cluster"     = "Sandbox-cluster", // Overridden label
           "cloud"       = "onprem",
