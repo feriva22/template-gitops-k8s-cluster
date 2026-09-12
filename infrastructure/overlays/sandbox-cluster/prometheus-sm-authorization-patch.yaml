@@ -2,9 +2,17 @@
   path: /spec/values/kubelet
   value:
     serviceMonitor:
-      authorization: null
+      authorization:
+        type: Bearer
+        credentials:
+          name: alloy-service-account-token
+          key: token
 - op: add
   path: /spec/values/kubeProxy
   value:
     serviceMonitor:
-      authorization: null
+      authorization:
+        type: Bearer
+        credentials:
+          name: alloy-service-account-token
+          key: token
