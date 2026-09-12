@@ -1,0 +1,10 @@
+- op: add
+  path: /spec/values/kubelet
+  value:
+    serviceMonitor:
+      authorization: null
+- op: add
+  path: /spec/values/kubeProxy
+  value:
+    serviceMonitor:
+      authorization: null

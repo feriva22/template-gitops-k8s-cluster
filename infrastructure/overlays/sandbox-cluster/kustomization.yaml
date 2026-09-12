@@ -25,6 +25,13 @@ patches:
       kind: HelmRelease
       name: kube-prometheus-stack
       namespace: monitoring
+  - path: prometheus-sm-authorization-patch.yaml
+    target:
+      group: helm.toolkit.fluxcd.io
+      version: v2
+      kind: HelmRelease
+      name: kube-prometheus-stack
+      namespace: monitoring
   # - path: delete-alloy.yaml
   #   target:
   #     kind: HelmRelease

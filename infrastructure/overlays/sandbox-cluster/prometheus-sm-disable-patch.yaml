@@ -22,12 +22,6 @@ spec:
       enabled: false
     coreDns:
       enabled: false
-    kubelet:
-      serviceMonitor:
-        authorization: null
-    kubeProxy:
-      serviceMonitor:
-        authorization: null
     defaultRules:
       create: true
       rules:
