@@ -5,12 +5,12 @@ alloy:
     limits:
       memory: 512Mi
   extraEnv:
-    - name: NODE_IP
-      valueFrom: { fieldRef: { fieldPath: status.hostIP } }
-    - name: NODE_NAME
-      valueFrom: { fieldRef: { fieldPath: spec.nodeName } }
-    - name: GOMEMLIMIT
-      value: "400MiB"
+  - name: NODE_IP
+    valueFrom: { fieldRef: { fieldPath: status.hostIP } }
+  - name: NODE_NAME
+    valueFrom: { fieldRef: { fieldPath: spec.nodeName } }
+  - name: GOMEMLIMIT
+    value: "400MiB"
   configMap:
     content: |-
       // Override Alloy config map for sandbox-cluster here if needed
