@@ -19,6 +19,12 @@ patches:
       kind: Alert
       name: telegram-alert
       namespace: flux-system
+  # Disable selected Kubernetes component ServiceMonitors for this cluster
+  - path: prometheus-sm-disable-patch.yaml
+    target:
+      kind: HelmRelease
+      name: kube-prometheus-stack
+      namespace: monitoring
 
 configMapGenerator:
   - name: alloy-values-override

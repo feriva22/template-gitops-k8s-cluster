@@ -1,0 +1,47 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: monitoring
+spec:
+  values:
+    # Disable Kubernetes component ServiceMonitors that are not required
+    # (or cannot be scraped) in the ACK-Kurir-Prod cluster. The base HelmRelease
+    # enables all of them; these top-level toggles gate each ServiceMonitor CR
+    # created by the kube-prometheus-stack chart (scraped here by Grafana Alloy).
+    kubeApiServer:
+      enabled: false
+    kubeControllerManager:
+      enabled: false
+    kubeScheduler:
+      enabled: false
+    kubeEtcd:
+      enabled: false
+    coreDns:
+      enabled: false
+    defaultRules:
+      create: true
+      rules:
+        etcd: false
+        kubeApiserverAvailability: false
+        kubeApiserverBurnrate: false
+        kubeApiserverHistogram: false
+        kubeApiserverSlos: false
+        kubeControllerManager: false
+        kubeSchedulerAlerting: false
+        kubeSchedulerRecording: false
+
+    prometheus-node-exporter:
+      prometheus:
+        monitor:
+          ## RelabelConfigs to apply to samples before scraping
+          ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig
+          ##
+          relabelings:
+            - sourceLabels: [__meta_kubernetes_node_label_kubernetes_io_hostname]
+              targetLabel: node
+              replacement: ${1}
+          ## Attach node metadata to discovered targets. Requires Prometheus v2.35.0 and above.
+          ##
+          attachMetadata:
+            node: true
