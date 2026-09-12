@@ -25,10 +25,10 @@ spec:
       clustering:
         enabled: false
       extraEnv:
-        - name: GOMEMLIMIT
-          value: "75MiB"
-        - name: GOGC
-          value: "50"
+        # - name: GOMEMLIMIT
+        #   value: "75MiB"
+        # - name: GOGC
+        #   value: "50"
         - name: NODE_IP
           valueFrom:
             fieldRef:
