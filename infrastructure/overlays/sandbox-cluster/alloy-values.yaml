@@ -33,8 +33,6 @@ alloy:
         }
         namespaces      = ["monitoring"]
         kubernetes_role = "endpointslice"
-
-        forward_to = [prometheus.relabel.node_local_filter.receiver]
       }
 
       // 2. Discover Node Exporter Metrics
@@ -53,13 +51,14 @@ alloy:
           default_scrape_interval = "60s"
           default_scrape_timeout  = "10s"
         }
-
-        forward_to = [prometheus.relabel.node_local_filter.receiver]
       }
 
-      // 3. Filter targets to ONLY keep the local node BEFORE scraping
-      prometheus.relabel "node_local_filter" {
-        max_cache_size = 20000
+      // 3. Filter targets BEFORE scraping using discovery.relabel
+      discovery.relabel "node_local_filter" {
+        targets = concat(
+          prometheus.operator.servicemonitors.k8s_node_specific_metrics.targets,
+          prometheus.operator.servicemonitors.node_exporter_specific_metrics.targets,
+        )
 
         // Keep only targets where the endpoint node metadata matches this pod's node name
         rule {
@@ -74,13 +73,11 @@ alloy:
           regex         = "kube-system|kube-public"
           action        = "drop"
         }
-
-        forward_to = [prometheus.scrape.node_scrape.receiver]
       }
 
       // 4. Actually execute the HTTP scrape on the filtered local targets only
       prometheus.scrape "node_scrape" {
-        targets    = prometheus.relabel.node_local_filter.output
+        targets    = discovery.relabel.node_local_filter.output
         forward_to = [prometheus.relabel.metric_drops.receiver]
         
         scrape_interval = "60s"
