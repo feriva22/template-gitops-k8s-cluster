@@ -44,7 +44,7 @@ alloy:
       prometheus.relabel "node_local_filter" {
         rule {
           action        = "keep"
-          source_labels = ["__meta_kubernetes_pod_node_name"]
+          source_labels = ["node"]  // __meta_kubernetes_pod_node_name translate to node
           regex         = sys.env("NODE_NAME")
         }
         forward_to = [prometheus.remote_write.mimir.receiver]
