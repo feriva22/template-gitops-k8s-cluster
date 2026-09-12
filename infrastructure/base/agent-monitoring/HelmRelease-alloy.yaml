@@ -25,8 +25,8 @@ spec:
       clustering:
         enabled: false
       extraEnv:
-        # - name: GOMEMLIMIT
-        #   value: "75MiB"
+        - name: GOMEMLIMIT
+          value: "400MiB"
         # - name: GOGC
         #   value: "50"
         - name: NODE_IP
