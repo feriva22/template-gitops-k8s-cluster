@@ -25,7 +25,7 @@ alloy:
             values   = ["kube-prometheus-stack-kube-proxy","kube-prometheus-stack-kubelet"]
           }
         }
-        forward_to = [prometheus.remote_write.mimir.receiver]
+        forward_to = [prometheus.relabel.node_local_filter.receiver]
       }
 
       // Scrape Node Exporter Specific Metrics
@@ -36,6 +36,16 @@ alloy:
             operator = "In"
             values   = ["prometheus-node-exporter"]
           }
+        }
+        forward_to = [prometheus.relabel.node_local_filter.receiver]
+      }
+
+      // Keep only targets on THIS node (DaemonSet → 1 agent per node)
+      prometheus.relabel "node_local_filter" {
+        rule {
+          action        = "keep"
+          source_labels = ["__meta_kubernetes_pod_node_name"]
+          regex         = sys.env("NODE_NAME")
         }
         forward_to = [prometheus.remote_write.mimir.receiver]
       }
