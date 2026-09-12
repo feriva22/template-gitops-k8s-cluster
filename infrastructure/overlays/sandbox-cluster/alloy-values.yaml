@@ -48,12 +48,21 @@ alloy:
       }
 
       prometheus.relabel "node_local_filter" {
-        max_cache_size = 20000  // Reduce the RAM , RSS — should drop by the retained-label amount (tens of MB) and go_memstats_heap_objects — should fall.
+        max_cache_size = 20000  // Bounds the relabel LRU cache (default 100000) to cap retained label memory.
+
         // Only this node
-        rule { source_labels = ["node"]; regex = sys.env("NODE_NAME"); action = "keep" }
+        rule {
+          source_labels = ["node"]
+          regex         = sys.env("NODE_NAME")
+          action        = "keep"
+        }
 
         // Namespace drop (kube-system only — keep monitoring for node-exporter!)
-        rule { source_labels = ["namespace"]; regex = "kube-system|kube-public"; action = "drop" }
+        rule {
+          source_labels = ["namespace"]
+          regex         = "kube-system|kube-public"
+          action        = "drop"
+        }
 
         // Metric family drops (keep container_fs_* and container_blkio_* for I/O panels)
         rule {
