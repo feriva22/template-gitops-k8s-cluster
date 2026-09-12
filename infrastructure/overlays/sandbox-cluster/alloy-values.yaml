@@ -60,5 +60,6 @@ alloy:
           "cloud"       = "onprem",
           "environment" = "sandbox",                // Overridden environment
           "region"      = "us-east-1",
+          "source"      = "node-agent",
         }
       }
