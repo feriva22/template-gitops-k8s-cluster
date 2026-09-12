@@ -33,6 +33,13 @@ patches:
       kind: HelmRelease
       name: kube-prometheus-stack
       namespace: monitoring
+  - path: alloy-version-patch.yaml
+    target:
+      group: helm.toolkit.fluxcd.io
+      version: v2
+      kind: HelmRelease
+      name: alloy
+      namespace: monitoring
   # - path: delete-alloy.yaml
   #   target:
   #     kind: HelmRelease
