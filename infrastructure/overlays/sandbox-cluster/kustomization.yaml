@@ -6,6 +6,7 @@ resources:
   - ../../base/cert-manager
   - ../../base/argocd
   - alloy-service-account-token.yaml
+  - opentelemetry/otel-collector-demo.yaml
   # - non-existent-file.yaml # <--- Will cause Kustomize build failure
 
 # Strategic merge patch to apply production HA values over the base HelmRelease
