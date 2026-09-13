@@ -11,7 +11,9 @@ spec:
     serviceAccount: alloy
     prometheusCR:
       enabled: true
-      podMonitorSelector: {}
+      podMonitorSelector: 
+        matchLabels:
+          release: kube-prometheus-stack
       serviceMonitorSelector: 
         matchLabels:
           release: kube-prometheus-stack
