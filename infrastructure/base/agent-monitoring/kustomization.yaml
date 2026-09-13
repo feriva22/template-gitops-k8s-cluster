@@ -7,3 +7,5 @@ resources:
   - HelmRelease-prometheus.yaml
   - HelmRelease-alloy-cluster-wide.yaml
   - HelmRelease-alloy.yaml
+  - HelmRepository-opentelemetry.yaml
+  - HelmRelease-opentelemetry-operator.yaml
