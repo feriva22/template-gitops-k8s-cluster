@@ -86,9 +86,9 @@ alloy:
 
       prometheus.remote_write "mimir" {
         endpoint {
-          url = "http://obs-sandbox-mimir-gateway.observability/api/v1/push"
+          url = "http://metrics-new.posindonesia.deploy-at.my.id/metrics/api/v1/push"
           headers = {
-            "X-Scope-OrgID" = "INFRA-2", // Overridden OrgID
+            "X-Scope-OrgID" = "INFRA-Production", // Overridden OrgID
           }
           queue_config {
             capacity             = 500

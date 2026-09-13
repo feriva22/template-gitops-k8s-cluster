@@ -18,8 +18,8 @@ alloy:
 
       // Sync Kubernetes PrometheusRule CRDs directly to Mimir Ruler API
       mimir.rules.kubernetes "mimir_rules_sync" {
-        address   = "http://obs-sandbox-mimir-ruler.observability:8080"
-        tenant_id = "INFRA-2"
+        address   = "http://metrics-new.posindonesia.deploy-at.my.id/metrics"
+        tenant_id = "INFRA-Production"
 
         // Optional: Filter rules by namespace if you don't want all namespaces synced
         rule_selector {
@@ -45,9 +45,9 @@ alloy:
 
       prometheus.remote_write "mimir" {
         endpoint {
-          url = "http://obs-sandbox-mimir-gateway.observability/api/v1/push"
+          url = "http://metrics-new.posindonesia.deploy-at.my.id/metrics/api/v1/push"
           headers = {
-            "X-Scope-OrgID" = "INFRA-2", // Overridden OrgID
+            "X-Scope-OrgID" = "INFRA-Production", // Overridden OrgID
           }
           //queue_config {
           //  capacity             = 500
