@@ -5,6 +5,7 @@ metadata:
   namespace: monitoring
 spec:
   mode: daemonset
+  image: otel/opentelemetry-collector-contrib:0.160.0
   targetAllocator:
     enabled: true
     allocationStrategy: per-node
@@ -40,7 +41,7 @@ spec:
     exporters:
       debug:
         verbosity: detailed
-      prometheusremotewrite:
+      prometheus_remote_write:
         endpoint: "http://obs-sandbox-mimir-gateway.observability/api/v1/push"
         headers:
           "X-Scope-OrgID": "INFRA-2"
@@ -63,7 +64,7 @@ spec:
         metrics:
           receivers: [otlp, prometheus]
           processors: [memory_limiter]
-          exporters: [debug]
+          exporters: [debug, prometheus_remote_write]
         logs:
           receivers: [otlp]
           processors: [memory_limiter]
