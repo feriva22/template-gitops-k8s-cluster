@@ -5,22 +5,21 @@ metadata:
   namespace: monitoring
 spec:
   mode: statefulset
+  targetAllocator:
+    enabled: true
+    prometheusCR:
+      enabled: true
+      podMonitorSelector: {}
+      serviceMonitorSelector: {}
   config:
     receivers:
       prometheus:
         config:
           scrape_configs:
-          - job_name: 'otel-collector'
-            scrape_interval: 10s
-            static_configs:
-            - targets: [ '0.0.0.0:8888' ]
-            metric_relabel_configs:
-            - action: labeldrop
-              regex: (id|name)
-              replacement: $$1
-            - action: labelmap
-              regex: label_(.+)
-              replacement: $$1
+            - job_name: 'otel-collector'
+              scrape_interval: 10s
+              static_configs:
+                - targets: ['0.0.0.0:8888']
       otlp:
         protocols:
           grpc:
@@ -34,7 +33,7 @@ spec:
         spike_limit_percentage: 15
     exporters:
       debug:
-        verbosity: basic
+        verbosity: detailed
 
     service:
       pipelines:
