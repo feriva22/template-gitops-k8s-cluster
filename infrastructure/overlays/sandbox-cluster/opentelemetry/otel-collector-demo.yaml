@@ -4,14 +4,17 @@ metadata:
   name: demo
   namespace: monitoring
 spec:
-  mode: statefulset
+  mode: daemonset
   targetAllocator:
     enabled: true
+    allocationStrategy: per-node
     serviceAccount: alloy
     prometheusCR:
       enabled: true
       podMonitorSelector: {}
-      serviceMonitorSelector: {}
+      serviceMonitorSelector: 
+        matchLabels:
+          release: kube-prometheus-stack
   config:
     receivers:
       prometheus:
