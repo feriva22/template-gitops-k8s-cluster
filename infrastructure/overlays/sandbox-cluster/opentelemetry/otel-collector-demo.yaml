@@ -40,6 +40,19 @@ spec:
     exporters:
       debug:
         verbosity: detailed
+      prometheusremotewrite:
+        endpoint: "http://obs-sandbox-mimir-gateway.observability/api/v1/push"
+        headers:
+          "X-Scope-OrgID": "INFRA-2"
+        external_labels:
+          cluster: "Sandbox-cluster"
+          cloud: "onprem"
+          environment: "sandbox"
+          region: "us-east-1"
+          source: "node-agent"
+        remote_write_queue:
+          queue_size: 500           # Mirrors capacity
+          num_consumers: 10          # Mirrors max_shards
 
     service:
       pipelines:
