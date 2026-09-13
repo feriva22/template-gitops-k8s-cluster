@@ -7,7 +7,7 @@ spec:
   mode: statefulset
   targetAllocator:
     enabled: true
-    serviceAccount: opentelemetry-targetallocator-sa
+    serviceAccount: alloy
     prometheusCR:
       enabled: true
       podMonitorSelector: {}
