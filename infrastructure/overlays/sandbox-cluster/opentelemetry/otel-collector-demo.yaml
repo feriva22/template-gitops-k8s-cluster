@@ -9,6 +9,7 @@ spec:
     enabled: true
     prometheusCR:
       enabled: true
+      serviceAccount: opentelemetry-targetallocator-sa
       podMonitorSelector: {}
       serviceMonitorSelector: {}
   config:
