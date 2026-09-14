@@ -5,6 +5,7 @@ metadata:
   namespace: monitoring
 spec:
   mode: daemonset
+  serviceAccount: alloy
   image: otel/opentelemetry-collector-contrib:0.160.0
   targetAllocator:
     enabled: true
