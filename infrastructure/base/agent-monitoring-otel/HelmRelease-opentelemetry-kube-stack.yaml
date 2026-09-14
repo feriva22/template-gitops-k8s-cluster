@@ -16,6 +16,10 @@ spec:
       manager:
         collectorImage:
           repository: otel/opentelemetry-collector-contrib
+    defaultCRConfig:
+      image:
+        repository: otel/opentelemetry-collector-contrib
+        tag: "0.160.0"
     kubeStateMetrics:
       enabled: true
     collectors:
