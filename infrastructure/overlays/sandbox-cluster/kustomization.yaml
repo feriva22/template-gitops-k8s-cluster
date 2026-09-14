@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - ../../base/notification-infra-team
   #- ../../base/agent-monitoring
+  - ../../base/agent-monitoring-otel
   - ../../base/cert-manager
   - ../../base/argocd
   #- alloy-service-account-token.yaml

@@ -1,0 +1,14 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: opentelemetry-kube-stack
+  namespace: monitoring
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: opentelemetry-kube-stack
+      sourceRef:
+        kind: HelmRepository
+        name: opentelemetry
+  values: {}
