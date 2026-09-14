@@ -2,11 +2,11 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../../base/notification-infra-team
-  - ../../base/agent-monitoring
+  #- ../../base/agent-monitoring
   - ../../base/cert-manager
   - ../../base/argocd
-  - alloy-service-account-token.yaml
-  - opentelemetry/otel-collector-demo.yaml
+  #- alloy-service-account-token.yaml
+  #- opentelemetry/otel-collector-demo.yaml
   # - non-existent-file.yaml # <--- Will cause Kustomize build failure
 
 # Strategic merge patch to apply production HA values over the base HelmRelease
@@ -22,36 +22,36 @@ patches:
       name: telegram-alert
       namespace: flux-system
   # Disable selected Kubernetes component ServiceMonitors for this cluster
-  - path: prometheus-sm-disable-patch.yaml
-    target:
-      kind: HelmRelease
-      name: kube-prometheus-stack
-      namespace: monitoring
-  - path: prometheus-sm-authorization-patch.yaml
-    target:
-      group: helm.toolkit.fluxcd.io
-      version: v2
-      kind: HelmRelease
-      name: kube-prometheus-stack
-      namespace: monitoring
-  - path: alloy-version-patch.yaml
-    target:
-      group: helm.toolkit.fluxcd.io
-      version: v2
-      kind: HelmRelease
-      name: alloy
-      namespace: monitoring
+  # - path: prometheus-sm-disable-patch.yaml
+  #   target:
+  #     kind: HelmRelease
+  #     name: kube-prometheus-stack
+  #     namespace: monitoring
+  # - path: prometheus-sm-authorization-patch.yaml
+  #   target:
+  #     group: helm.toolkit.fluxcd.io
+  #     version: v2
+  #     kind: HelmRelease
+  #     name: kube-prometheus-stack
+  #     namespace: monitoring
+  # - path: alloy-version-patch.yaml
+  #   target:
+  #     group: helm.toolkit.fluxcd.io
+  #     version: v2
+  #     kind: HelmRelease
+  #     name: alloy
+  #     namespace: monitoring
 
-configMapGenerator:
-  - name: alloy-values-override
-    namespace: monitoring
-    files:
-      - values.yaml=alloy-values.yaml
-      
-  - name: alloy-cluster-wide-values-override
-    namespace: monitoring
-    files:
-      - values.yaml=alloy-cluster-wide-values.yaml
+# configMapGenerator:
+#   - name: alloy-values-override
+#     namespace: monitoring
+#     files:
+#       - values.yaml=alloy-values.yaml
+#       
+#   - name: alloy-cluster-wide-values-override
+#     namespace: monitoring
+#     files:
+#       - values.yaml=alloy-cluster-wide-values.yaml
 
 # Prevents Kustomize from adding the random hash suffix
 generatorOptions:
