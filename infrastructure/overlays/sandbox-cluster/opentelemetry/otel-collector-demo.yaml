@@ -18,10 +18,15 @@ spec:
       serviceMonitorSelector: 
         matchLabels:
           release: kube-prometheus-stack
+  ports:
+    - name: zpages
+      port: 55679
+      targetPort: 55679
+      protocol: TCP
   config:
     extensions:
       zpages:
-        endpoint: localhost:55679
+        endpoint: 0.0.0.0:55679
 
     receivers:
       prometheus:
