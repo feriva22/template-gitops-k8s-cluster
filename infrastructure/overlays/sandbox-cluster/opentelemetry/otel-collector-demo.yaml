@@ -42,9 +42,9 @@ spec:
       debug:
         verbosity: detailed
       prometheus_remote_write:
-        endpoint: "http://obs-sandbox-mimir-gateway.observability/api/v1/push"
+        endpoint: "http://metrics-new.posindonesia.deploy-at.my.id/metrics/api/v1/push"
         headers:
-          "X-Scope-OrgID": "INFRA-2"
+          "X-Scope-OrgID": "INFRA-Production"
         external_labels:
           cluster: "Sandbox-cluster"
           cloud: "onprem"
