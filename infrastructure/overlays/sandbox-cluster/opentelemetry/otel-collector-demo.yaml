@@ -19,6 +19,9 @@ spec:
         matchLabels:
           release: kube-prometheus-stack
   config:
+    extensions:
+      zpages:
+
     receivers:
       prometheus:
         config:
