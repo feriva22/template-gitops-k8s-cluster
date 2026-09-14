@@ -24,6 +24,12 @@ spec:
       enabled: true
     collectors:
       daemon:
+        presets:
+          prometheus:
+            nodeExporter:
+              enabled: true
+            cadvisor:
+              enabled: true
         config:
           exporters:
             debug: {}
