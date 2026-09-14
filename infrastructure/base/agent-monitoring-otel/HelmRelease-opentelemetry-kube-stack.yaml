@@ -20,16 +20,16 @@ spec:
       image:
         repository: otel/opentelemetry-collector-contrib
         tag: "0.160.0"
+    kubernetesServiceMonitors:
+      enabled: true
     kubeStateMetrics:
+      enabled: true
+    nodeExporter:
+      enabled: true
+    kubelet:
       enabled: true
     collectors:
       daemon:
-        presets:
-          prometheus:
-            nodeExporter:
-              enabled: true
-            cadvisor:
-              enabled: true
         config:
           exporters:
             debug: {}
