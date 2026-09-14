@@ -21,6 +21,7 @@ spec:
   config:
     extensions:
       zpages:
+        endpoint: localhost:55679
 
     receivers:
       prometheus:
@@ -59,6 +60,7 @@ spec:
           num_consumers: 10          # Mirrors max_shards
 
     service:
+      extensions: [zpages]
       pipelines:
         traces:
           receivers: [otlp]
