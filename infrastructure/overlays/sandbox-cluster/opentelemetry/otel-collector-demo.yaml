@@ -50,7 +50,7 @@ spec:
         spike_limit_percentage: 15
     exporters:
       debug:
-        verbosity: detailed
+        verbosity: basic
       prometheus_remote_write:
         endpoint: "http://metrics-new.posindonesia.deploy-at.my.id/metrics/api/v1/push"
         headers:
