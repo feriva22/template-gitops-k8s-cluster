@@ -11,4 +11,6 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: opentelemetry
-  values: {}
+  values:
+    kubeStateMetrics:
+      enabled: true
