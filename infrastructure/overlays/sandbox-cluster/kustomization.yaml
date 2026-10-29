@@ -6,6 +6,7 @@ resources:
   - ../../base/agent-monitoring-otel
   - ../../base/cert-manager
   - ../../base/argocd
+  - ../../base/redis-operator
   # - ../../base/openbao
   #- alloy-service-account-token.yaml
   #- opentelemetry/otel-collector-demo.yaml
@@ -23,6 +24,12 @@ patches:
       kind: Alert
       name: telegram-alert
       namespace: flux-system
+  # Install redis operator to test
+  - path: patch-redis-operator.yaml
+    target:
+      kind: HelmRelease
+      name: redis-operator
+      namespace: ot-operators
   # Disable selected Kubernetes component ServiceMonitors for this cluster
   # - path: prometheus-sm-disable-patch.yaml
   #   target:
